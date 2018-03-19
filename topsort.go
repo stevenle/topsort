@@ -63,6 +63,19 @@ func (g *Graph) TopSort(name string) ([]string, error) {
 	return results.items, nil
 }
 
+func (g *Graph) TopSortAll() ([]string, error) {
+	results := newOrderedSet()
+	for name := range g.nodes {
+		if !results.has(name) {
+			err := g.visit(name, results, nil)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return results.items, nil
+}
+
 func (g *Graph) visit(name string, results *orderedset, visited *orderedset) error {
 	if visited == nil {
 		visited = newOrderedSet()
@@ -130,6 +143,11 @@ func (s *orderedset) copy() *orderedset {
 		clone.add(item)
 	}
 	return clone
+}
+
+func (s *orderedset) has(item string) bool {
+	_, ok := s.indexes[item]
+	return ok
 }
 
 func (s *orderedset) index(item string) int {

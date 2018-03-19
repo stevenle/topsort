@@ -40,3 +40,21 @@ graph.AddEdge("B", "C")
 // Topologically sort node A.
 graph.TopSort("A")  // => [C, B, A]
 ```
+
+Sort all nodes:
+
+```go
+graph := topsort.NewGraph()
+
+// Add node alone
+graph.AddNode("e")
+
+// Add edges.
+graph.AddEdge("a", "b")
+graph.AddEdge("a", "d")
+graph.AddEdge("d", "c")
+graph.AddEdge("c", "b")
+
+results, err := graph.TopSortAll()
+println(results) // => [b, c, d, e, a]
+```
