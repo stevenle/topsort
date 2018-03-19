@@ -157,3 +157,10 @@ func (s *orderedset) index(item string) int {
 	}
 	return -1
 }
+
+func Reverse(a []string) {
+	for l, i := len(a), len(a)/2-1; i >= 0; i-- {
+		opp := l-1-i
+		a[i], a[opp] = a[opp], a[i]
+	}
+}
