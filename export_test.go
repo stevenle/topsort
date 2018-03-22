@@ -14,10 +14,22 @@
 
 package topsort
 
-// Reverse Reverse the slice items.
-func Reverse(a []string) {
-	for l, i := len(a), len(a)/2-1; i >= 0; i-- {
-		opp := l-1-i
-		a[i], a[opp] = a[opp], a[i]
+import (
+	"testing"
+)
+
+func TestGraph_DOTString(t *testing.T) {
+	graph := NewGraph()
+	graph.ParseString("A>B,E,B>C,B>D,E>D", "", "")
+	expected := `digraph G {
+ "A" -> "B";
+ "B" -> "C";
+ "B" -> "D";
+ "C"
+ "D"
+ "E" -> "D";
+}`
+	if value := graph.DOTString(); value != expected {
+		t.Error("Invalid DOT string.")
 	}
 }

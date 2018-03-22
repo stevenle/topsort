@@ -29,10 +29,22 @@ func NewGraph() *Graph {
 	}
 }
 
-func (g *Graph) AddNode(name string) {
-	if !g.ContainsNode(name) {
-		g.nodes[name] = make(node)
+func (g *Graph) AddNode(names ...string) {
+	for _, name := range names {
+		if !g.ContainsNode(name) {
+			g.nodes[name] = make(node)
+		}
 	}
+}
+
+func (g *Graph) AddEdgeTuple(fromTo ...[2]string) (err error) {
+	for _, ft := range fromTo {
+		err = g.AddEdge(ft[0], ft[1])
+		if err != nil {
+			return
+		}
+	}
+	return err
 }
 
 func (g *Graph) AddEdge(from string, to string) error {
@@ -52,57 +64,6 @@ func (g *Graph) AddEdge(from string, to string) error {
 func (g *Graph) ContainsNode(name string) bool {
 	_, ok := g.nodes[name]
 	return ok
-}
-
-// TopSort Topological node classifier.
-// The order is defined by the default ordering of the key in the edges map and edges of edges.
-// For dependency order, invert the result.
-func (g *Graph) TopSort(name string) ([]string, error) {
-	results := newOrderedSet()
-	err := g.visit(name, results, nil)
-	if err != nil {
-		return nil, err
-	}
-	return results.items, nil
-}
-
-// TopSortDependency Topological node in dependency order.
-// The order is defined by the default ordering of the key in the edges map and edges of edges.
-func (g *Graph) TopSortDependency(name string) ([]string, error) {
-	results, err := g.TopSort(name)
-	if err != nil {
-		return nil, err
-	}
-	Reverse(results)
-	return results, nil
-}
-
-// TopSortAll Topological nodes classifier of all nodes in the graph, including those that have no edge.
-// The order is defined by the default ordering of the key in the node map and its edges.
-// For dependency order, invert the result.
-func (g *Graph) TopSortAll() ([]string, error) {
-	results := newOrderedSet()
-	for name := range g.nodes {
-		if !results.has(name) {
-			err := g.visit(name, results, nil)
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-	return results.items, nil
-}
-
-// TopSortAll Topological nodes classifier of all nodes in the graph, including those that have no edge,
-// in dependency order.
-// The order is defined by the default ordering of the key in the node map and its edges.
-func (g *Graph) TopSortAllDependency() ([]string, error) {
-	results, err := g.TopSortAll()
-	if err != nil {
-		return nil, err
-	}
-	Reverse(results)
-	return results, nil
 }
 
 func (g *Graph) visit(name string, results *orderedset, visited *orderedset) error {
@@ -133,6 +94,11 @@ type node map[string]bool
 
 func (n node) addEdge(name string) {
 	n[name] = true
+}
+
+func (n node) hasEdge(name string) (ok bool) {
+	_, ok = n[name]
+	return
 }
 
 func (n node) edges() []string {

@@ -161,7 +161,7 @@ func TestTopSortAll(t *testing.T) {
 	graph.AddEdge("D", "C")
 	graph.AddEdge("C", "B")
 
-	results, err := graph.TopSortAll()
+	results, err := graph.TopSort()
 	if err != nil {
 		t.Error(err)
 		return
@@ -196,9 +196,6 @@ func TestTopSortAll(t *testing.T) {
 
 func initGraph() *Graph {
 	graph := NewGraph()
-	graph.AddNode("a")
-	graph.AddNode("b")
-	graph.AddNode("c")
-	graph.AddNode("d")
+	graph.AddNode("a", "b", "c", "d")
 	return graph
 }
