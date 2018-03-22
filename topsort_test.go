@@ -144,11 +144,58 @@ func TestTopSortCycleError3(t *testing.T) {
 	}
 }
 
+func TestTopSortAll(t *testing.T) {
+	graph := NewGraph()
+	graph.AddNode("A")
+	graph.AddNode("B")
+	graph.AddNode("C")
+	graph.AddNode("D")
+	graph.AddNode("E")
+
+	// a -> b
+	// a -> d
+	// d -> c
+	// c -> b
+	graph.AddEdge("A", "B")
+	graph.AddEdge("A", "D")
+	graph.AddEdge("D", "C")
+	graph.AddEdge("C", "B")
+
+	results, err := graph.TopSort()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if len(results) != 5 {
+		t.Errorf("Wrong number of results: %v", results)
+		return
+	}
+
+	m := make(map[string]int)
+
+	for i, v := range results {
+		m[v] = i
+	}
+
+	if m["A"] < m["B"] {
+		t.Errorf("Wrong sort order: A before B.")
+	}
+	if m["A"] < m["D"] {
+		t.Errorf("Wrong sort order: A before D.")
+	}
+	if m["D"] < m["C"] {
+		t.Errorf("Wrong sort order: D before C.")
+	}
+	if m["C"] < m["B"] {
+		t.Errorf("Wrong sort order: C before B.")
+	}
+	if _, ok := m["E"]; !ok {
+		t.Errorf("Wrong sort order: E not found.")
+	}
+}
+
 func initGraph() *Graph {
 	graph := NewGraph()
-	graph.AddNode("a")
-	graph.AddNode("b")
-	graph.AddNode("c")
-	graph.AddNode("d")
+	graph.AddNode("a", "b", "c", "d")
 	return graph
 }

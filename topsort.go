@@ -29,10 +29,22 @@ func NewGraph() *Graph {
 	}
 }
 
-func (g *Graph) AddNode(name string) {
-	if !g.ContainsNode(name) {
-		g.nodes[name] = make(node)
+func (g *Graph) AddNode(names ...string) {
+	for _, name := range names {
+		if !g.ContainsNode(name) {
+			g.nodes[name] = make(node)
+		}
 	}
+}
+
+func (g *Graph) AddEdgeTuple(fromTo ...[2]string) (err error) {
+	for _, ft := range fromTo {
+		err = g.AddEdge(ft[0], ft[1])
+		if err != nil {
+			return
+		}
+	}
+	return err
 }
 
 func (g *Graph) AddEdge(from string, to string) error {
@@ -52,15 +64,6 @@ func (g *Graph) AddEdge(from string, to string) error {
 func (g *Graph) ContainsNode(name string) bool {
 	_, ok := g.nodes[name]
 	return ok
-}
-
-func (g *Graph) TopSort(name string) ([]string, error) {
-	results := newOrderedSet()
-	err := g.visit(name, results, nil)
-	if err != nil {
-		return nil, err
-	}
-	return results.items, nil
 }
 
 func (g *Graph) visit(name string, results *orderedset, visited *orderedset) error {
@@ -91,6 +94,11 @@ type node map[string]bool
 
 func (n node) addEdge(name string) {
 	n[name] = true
+}
+
+func (n node) hasEdge(name string) (ok bool) {
+	_, ok = n[name]
+	return
 }
 
 func (n node) edges() []string {
@@ -130,6 +138,11 @@ func (s *orderedset) copy() *orderedset {
 		clone.add(item)
 	}
 	return clone
+}
+
+func (s *orderedset) has(item string) bool {
+	_, ok := s.indexes[item]
+	return ok
 }
 
 func (s *orderedset) index(item string) int {
