@@ -54,6 +54,9 @@ func (g *Graph) ContainsNode(name string) bool {
 	return ok
 }
 
+// TopSort Topological node classifier.
+// The order is defined by the default ordering of the key in the edges map and edges of edges.
+// For dependency order, invert the result.
 func (g *Graph) TopSort(name string) ([]string, error) {
 	results := newOrderedSet()
 	err := g.visit(name, results, nil)
@@ -63,6 +66,20 @@ func (g *Graph) TopSort(name string) ([]string, error) {
 	return results.items, nil
 }
 
+// TopSortDependency Topological node in dependency order.
+// The order is defined by the default ordering of the key in the edges map and edges of edges.
+func (g *Graph) TopSortDependency(name string) ([]string, error) {
+	results, err := g.TopSort(name)
+	if err != nil {
+		return nil, err
+	}
+	Reverse(results)
+	return results, nil
+}
+
+// TopSortAll Topological nodes classifier of all nodes in the graph, including those that have no edge.
+// The order is defined by the default ordering of the key in the node map and its edges.
+// For dependency order, invert the result.
 func (g *Graph) TopSortAll() ([]string, error) {
 	results := newOrderedSet()
 	for name := range g.nodes {
@@ -74,6 +91,18 @@ func (g *Graph) TopSortAll() ([]string, error) {
 		}
 	}
 	return results.items, nil
+}
+
+// TopSortAll Topological nodes classifier of all nodes in the graph, including those that have no edge,
+// in dependency order.
+// The order is defined by the default ordering of the key in the node map and its edges.
+func (g *Graph) TopSortAllDependency() ([]string, error) {
+	results, err := g.TopSortAll()
+	if err != nil {
+		return nil, err
+	}
+	Reverse(results)
+	return results, nil
 }
 
 func (g *Graph) visit(name string, results *orderedset, visited *orderedset) error {
@@ -156,11 +185,4 @@ func (s *orderedset) index(item string) int {
 		return index
 	}
 	return -1
-}
-
-func Reverse(a []string) {
-	for l, i := len(a), len(a)/2-1; i >= 0; i-- {
-		opp := l-1-i
-		a[i], a[opp] = a[opp], a[i]
-	}
 }
