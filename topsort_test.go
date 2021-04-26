@@ -146,9 +146,5 @@ func TestTopSortCycleError3(t *testing.T) {
 
 func initGraph() *Graph {
 	graph := NewGraph()
-	graph.AddNode("a")
-	graph.AddNode("b")
-	graph.AddNode("c")
-	graph.AddNode("d")
 	return graph
 }

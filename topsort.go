@@ -35,16 +35,18 @@ func (g *Graph) AddNode(name string) {
 	}
 }
 
-func (g *Graph) AddEdge(from string, to string) error {
-	f, ok := g.nodes[from]
+func (g *Graph) GetOrAddNode(name string) node {
+	n, ok := g.nodes[name]
 	if !ok {
-		return fmt.Errorf("Node %q not found", from)
+		n = make(node)
+		g.nodes[name] = n
 	}
-	_, ok = g.nodes[to]
-	if !ok {
-		return fmt.Errorf("Node %q not found", to)
-	}
+	return n
+}
 
+func (g *Graph) AddEdge(from string, to string) error {
+	f := g.GetOrAddNode(from)
+	g.AddNode(to)
 	f.addEdge(to)
 	return nil
 }
@@ -119,7 +121,7 @@ func (s *orderedset) add(item string) bool {
 	if !ok {
 		s.indexes[item] = s.length
 		s.items = append(s.items, item)
-    s.length++
+		s.length++
 	}
 	return !ok
 }
