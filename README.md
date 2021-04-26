@@ -29,9 +29,6 @@ The code for this example would look something like:
 ```go
 // Initialize the graph.
 graph := topsort.NewGraph()
-graph.AddNode("A")
-graph.AddNode("B")
-graph.AddNode("C")
 
 // Add edges.
 graph.AddEdge("A", "B")
