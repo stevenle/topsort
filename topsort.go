@@ -51,14 +51,14 @@ func (g *Graph[Key]) AddEdge(from Key, to Key) error {
 	return nil
 }
 
-func (g *Graph[Key]) ContainsNode(name Key) bool {
-	_, ok := g.nodes[name]
+func (g *Graph[Key]) ContainsNode(key Key) bool {
+	_, ok := g.nodes[key]
 	return ok
 }
 
-func (g *Graph[Key]) TopSort(name Key) ([]Key, error) {
+func (g *Graph[Key]) TopSort(key Key) ([]Key, error) {
 	results := newOrderedSet[Key]()
-	err := g.visit(name, results, nil)
+	err := g.visit(key, results, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -95,8 +95,8 @@ func (g *Graph[Key]) visit(key Key, results *orderedset[Key], visited *orderedse
 
 type nodeimpl[Key comparable] map[Key]bool
 
-func (n nodeimpl[Key]) addEdge(name Key) {
-	n[name] = true
+func (n nodeimpl[Key]) addEdge(key Key) {
+	n[key] = true
 }
 
 func (n nodeimpl[Key]) edges() []Key {
