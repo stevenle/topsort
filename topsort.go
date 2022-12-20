@@ -19,45 +19,45 @@ import (
 	"strings"
 )
 
-type Graph struct {
-	nodes map[string]node
+type Graph[Key comparable] struct {
+	nodes map[Key]nodeimpl[Key]
 }
 
-func NewGraph() *Graph {
-	return &Graph{
-		nodes: make(map[string]node),
+func NewGraph[Key comparable]() *Graph[Key] {
+	return &Graph[Key]{
+		nodes: make(map[Key]nodeimpl[Key]),
 	}
 }
 
-func (g *Graph) AddNode(name string) {
-	if !g.ContainsNode(name) {
-		g.nodes[name] = make(node)
+func (g *Graph[Key]) AddNode(key Key) {
+	if !g.ContainsNode(key) {
+		g.nodes[key] = make(nodeimpl[Key])
 	}
 }
 
-func (g *Graph) GetOrAddNode(name string) node {
-	n, ok := g.nodes[name]
+func (g *Graph[Key]) getOrAddNode(node Key) nodeimpl[Key] {
+	n, ok := g.nodes[node]
 	if !ok {
-		n = make(node)
-		g.nodes[name] = n
+		n = make(nodeimpl[Key])
+		g.nodes[node] = n
 	}
 	return n
 }
 
-func (g *Graph) AddEdge(from string, to string) error {
-	f := g.GetOrAddNode(from)
+func (g *Graph[Key]) AddEdge(from Key, to Key) error {
+	f := g.getOrAddNode(from)
 	g.AddNode(to)
 	f.addEdge(to)
 	return nil
 }
 
-func (g *Graph) ContainsNode(name string) bool {
+func (g *Graph[Key]) ContainsNode(name Key) bool {
 	_, ok := g.nodes[name]
 	return ok
 }
 
-func (g *Graph) TopSort(name string) ([]string, error) {
-	results := newOrderedSet()
+func (g *Graph[Key]) TopSort(name Key) ([]Key, error) {
+	results := newOrderedSet[Key]()
 	err := g.visit(name, results, nil)
 	if err != nil {
 		return nil, err
@@ -65,19 +65,23 @@ func (g *Graph) TopSort(name string) ([]string, error) {
 	return results.items, nil
 }
 
-func (g *Graph) visit(name string, results *orderedset, visited *orderedset) error {
+func (g *Graph[Key]) visit(key Key, results *orderedset[Key], visited *orderedset[Key]) error {
 	if visited == nil {
-		visited = newOrderedSet()
+		visited = newOrderedSet[Key]()
 	}
 
-	added := visited.add(name)
+	added := visited.add(key)
 	if !added {
-		index := visited.index(name)
-		cycle := append(visited.items[index:], name)
-		return fmt.Errorf("Cycle error: %s", strings.Join(cycle, " -> "))
+		index := visited.index(key)
+		cycle := append(visited.items[index:], key)
+		strs := make([]string, len(cycle))
+		for i, k := range cycle {
+			strs[i] = fmt.Sprintf("%v", k)
+		}
+		return fmt.Errorf("Cycle error: %s", strings.Join(strs, " -> "))
 	}
 
-	n := g.nodes[name]
+	n := g.nodes[key]
 	for _, edge := range n.edges() {
 		err := g.visit(edge, results, visited.copy())
 		if err != nil {
@@ -85,38 +89,38 @@ func (g *Graph) visit(name string, results *orderedset, visited *orderedset) err
 		}
 	}
 
-	results.add(name)
+	results.add(key)
 	return nil
 }
 
-type node map[string]bool
+type nodeimpl[Key comparable] map[Key]bool
 
-func (n node) addEdge(name string) {
+func (n nodeimpl[Key]) addEdge(name Key) {
 	n[name] = true
 }
 
-func (n node) edges() []string {
-	var keys []string
+func (n nodeimpl[Key]) edges() []Key {
+	var keys []Key
 	for k := range n {
 		keys = append(keys, k)
 	}
 	return keys
 }
 
-type orderedset struct {
-	indexes map[string]int
-	items   []string
+type orderedset[Key comparable] struct {
+	indexes map[Key]int
+	items   []Key
 	length  int
 }
 
-func newOrderedSet() *orderedset {
-	return &orderedset{
-		indexes: make(map[string]int),
+func newOrderedSet[Key comparable]() *orderedset[Key] {
+	return &orderedset[Key]{
+		indexes: make(map[Key]int),
 		length:  0,
 	}
 }
 
-func (s *orderedset) add(item string) bool {
+func (s *orderedset[Key]) add(item Key) bool {
 	_, ok := s.indexes[item]
 	if !ok {
 		s.indexes[item] = s.length
@@ -126,15 +130,15 @@ func (s *orderedset) add(item string) bool {
 	return !ok
 }
 
-func (s *orderedset) copy() *orderedset {
-	clone := newOrderedSet()
+func (s *orderedset[Key]) copy() *orderedset[Key] {
+	clone := newOrderedSet[Key]()
 	for _, item := range s.items {
 		clone.add(item)
 	}
 	return clone
 }
 
-func (s *orderedset) index(item string) int {
+func (s *orderedset[Key]) index(item Key) int {
 	index, ok := s.indexes[item]
 	if ok {
 		return index
