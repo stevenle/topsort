@@ -144,7 +144,7 @@ func TestTopSortCycleError3(t *testing.T) {
 	}
 }
 
-func initGraph() *Graph {
-	graph := NewGraph()
+func initGraph() *Graph[string] {
+	graph := NewGraph[string]()
 	return graph
 }

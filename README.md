@@ -28,7 +28,7 @@ The code for this example would look something like:
 
 ```go
 // Initialize the graph.
-graph := topsort.NewGraph()
+graph := topsort.NewGraph[string]()
 
 // Add edges.
 graph.AddEdge("A", "B")
